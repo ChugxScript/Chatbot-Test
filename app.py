@@ -21,7 +21,7 @@ prompt = PromptTemplate(
 
       2/ If the best practice are irrelevant, then try to mimic the style of the best practice to prospect's message
 
-      3/ If the prospect's message is relevant to the ultima_core,
+      3/ If the prospect's message is relevant to the bot_core,
       then try to explain the details to the prospect \n
 
       Below is a message I received from the prospect:
@@ -30,19 +30,19 @@ prompt = PromptTemplate(
       Here is a list of best practies of how we normally respond to prospect in similar scenarios:
       {best_practice}
 
-      Here is the ultima_core:
-      {ULTIMA_CORE}
+      Here is the bot_core:
+      {BOT_CORE}
 
       Please write the best response that I should send to this prospect:
       """,
-    input_variables = ["message", "best_practice", "ULTIMA_CORE"],
+    input_variables = ["message", "best_practice", "BOT_CORE"],
 )
 
 chain = prompt | llm | JsonOutputParser()
 
-def get_ultima_response(prompt):
+def get_bot_response(prompt):
     # Load the CSV file into a DataFrame
-    df = pd.read_csv("./ultima_data/ultima_response.csv")
+    df = pd.read_csv("./bot_data/bot_response.csv")
 
     # Extract the customer messages from the DataFrame
     customer_messages = df['Customer message'].tolist()
@@ -64,26 +64,26 @@ def get_ultima_response(prompt):
     top_3_documents = df.iloc[top_3_indices]
     return top_3_documents
 
-def get_ultima_core():
-    ULTIMA_PATH = './ultima_data/ultima_core.txt'
-    with open(ULTIMA_PATH, 'r') as f:
-        ultima_core = f.read()
-    return ultima_core
+def get_bot_core():
+    BOT_PATH = './bot_data/bot_core.txt'
+    with open(BOT_PATH, 'r') as f:
+        bot_core = f.read()
+    return bot_core
 
 
-st.title("ULTIMA REVIEWER CHATBOT🤖")
+st.title("CHATBOT🤖")
 user_prompt = st.text_area("Enter your prompt:")
 
 if st.button("ENTER"):
     if user_prompt:
         with st.spinner("Generating response..."):
-            best_practice_docs = get_ultima_response(user_prompt)
+            best_practice_docs = get_bot_response(user_prompt)
             best_practice = "\n\n".join(
                 [f"Customer message: {row['Customer message']}\nOur response: {row['Our response']}" for index, row in best_practice_docs.iterrows()]
             )
-            ULTIMA_CORE = get_ultima_core()
+            BOT_CORE = get_bot_core()
             message = user_prompt
             st.write_stream(
-                llm.stream(chain.invoke({"message": message, "best_practice": best_practice, "ULTIMA_CORE": ULTIMA_CORE,}),
+                llm.stream(chain.invoke({"message": message, "best_practice": best_practice, "BOT_CORE": BOT_CORE,}),
                 stop=['<|eot_id|>'])
               )
