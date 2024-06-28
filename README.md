@@ -11,3 +11,5 @@ install Ollama -> https://ollama.com/download/windows
 run -> ollama run llama3
 
 on vscode terminal run -> ollama serve
+
+sample commit from ubuntu
